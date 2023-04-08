@@ -42,6 +42,7 @@ func main() {
 	autha := r.Group("/auth")
 	{
 		autha.POST("/register", auth.Register)
+		autha.POST("/login", auth.Login)
 	}
 	
 	//Create http server
