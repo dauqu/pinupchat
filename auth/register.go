@@ -2,12 +2,14 @@ package auth
 
 import (
 	"context"
+	"fmt"
+	"pinupchat/models"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
-	"pinupchat/models"
-	"time"
 )
 
 func Register(c *gin.Context) {
@@ -17,6 +19,8 @@ func Register(c *gin.Context) {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
+
+	fmt.Println(user)
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
