@@ -38,8 +38,6 @@ func Profile(c *gin.Context) {
 		fmt.Println(claims["id"])
 	}
 
-	fmt.Println(claims["id"])
-
 	//MongoDb primitive object id
 	id, _ := primitive.ObjectIDFromHex(claims["id"].(string))
 
