@@ -25,10 +25,10 @@ func Register(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Check all fields
-	if user.FullName != "" || user.Phone != "" || user.Password != "" || user.Country != "" {
-		c.JSON(400, gin.H{"message": "All fields are required"})
-		return
-	}
+	// if user.FullName != "" || user.Phone != "" || user.Password != "" || user.Country != "" {
+	// 	c.JSON(400, gin.H{"message": "All fields are required"})
+	// 	return
+	// }
 
 	//Check if username exists
 	var check_user models.User
