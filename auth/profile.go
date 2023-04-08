@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"pinupchat/models"
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -31,28 +31,29 @@ func Profile(c *gin.Context) {
 		return
 	}
 
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
 	// Check if token is valid
 	if token.Valid {
-
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-
-		//MongoDb primitive object id
-		id, _ := primitive.ObjectIDFromHex(claims["id"].(string))
-
-		cursor, err := UsersCollection.Find(ctx, bson.M{"_id": id})
-		if err != nil {
-			c.JSON(400, gin.H{"message": err.Error()})
-			return
-		}
-
-		var users []models.User
-		if err = cursor.All(ctx, &users); err != nil {
-			c.JSON(400, gin.H{"message": err.Error()})
-			return
-		}
-
-		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true, "user": users})
+		fmt.Println(claims["id"])
 	}
 
-	c.JSON(200, gin.H{"message": "Token is invalid", "isLogged": true})
+	fmt.Println(claims["id"])
+
+	//MongoDb primitive object id
+	id, _ := primitive.ObjectIDFromHex(claims["id"].(string))
+
+	cursor, err := UsersCollection.Find(ctx, bson.M{"_id": id})
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	var results []bson.M
+	if err := cursor.All(ctx, &results); err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "User found", "user": results})
 }
