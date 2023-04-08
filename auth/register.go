@@ -21,7 +21,7 @@ func Register(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Check all fields
-	if user.FirstName == "" || user.LastName == "" || user.Phone == "" || user.Password == "" || user.Country == "" {
+	if user.FullName == "" || user.Phone == "" || user.Password == "" || user.Country == "" {
 		c.JSON(400, gin.H{"message": "All fields are required"})
 		return
 	}
@@ -51,8 +51,7 @@ func Register(c *gin.Context) {
 
 	//Insert user
 	_, err = UsersCollection.InsertOne(ctx, bson.M{
-		"first_name":    user.FirstName,
-		"last_name":     user.LastName,
+		"full_name":     user.FullName,
 		"phone":         user.Phone,
 		"country":       user.Country,
 		"email":         "",
