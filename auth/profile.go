@@ -1,8 +1,14 @@
 package auth
 
 import (
+	"context"
+	"pinupchat/models"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Profile(c *gin.Context) {
@@ -27,8 +33,25 @@ func Profile(c *gin.Context) {
 
 	// Check if token is valid
 	if token.Valid {
-		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true, "claims": claims})
-		return
+
+		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+		//MongoDb primitive object id
+		id, _ := primitive.ObjectIDFromHex(claims["id"].(string))
+
+		cursor, err := UsersCollection.Find(ctx, bson.M{"_id": id})
+		if err != nil {
+			c.JSON(400, gin.H{"message": err.Error()})
+			return
+		}
+
+		var users []models.User
+		if err = cursor.All(ctx, &users); err != nil {
+			c.JSON(400, gin.H{"message": err.Error()})
+			return
+		}
+
+		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true, "user": users})
 	}
 
 	c.JSON(200, gin.H{"message": "Token is invalid", "isLogged": true})
