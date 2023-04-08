@@ -6,18 +6,18 @@ import (
 )
 
 func Profile(c *gin.Context) {
+	// Get authorization header
+	tokenString := c.Request.Header.Get("Authorization")
 
-	//Get authorization header
-	token := c.Request.Header.Get("Authorization")
-
-	//Check if token is empty
-	if token == "" || token == "null" || token == "undefined" {
+	// Check if token is empty
+	if tokenString == "" || tokenString == "null" || tokenString == "undefined" {
 		c.JSON(200, gin.H{"message": "Token is empty", "isLogged": false})
 		return
 	}
 
-	//Verify token and return claims
-	claims, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+	// Parse and verify the token
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
 	})
 	if err != nil {
@@ -25,9 +25,9 @@ func Profile(c *gin.Context) {
 		return
 	}
 
-	//Check if token is valid
-	if claims.Valid {
-		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true})
+	// Check if token is valid
+	if token.Valid {
+		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true, "claims": claims})
 		return
 	}
 
