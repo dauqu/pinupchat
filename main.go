@@ -40,6 +40,7 @@ func main() {
 		autha.POST("/register", auth.Register)
 		autha.POST("/login", auth.Login)
 		autha.GET("/check-login", auth.CheckLogin)
+		autha.GET("/profile", auth.Profile)
 	}
 	
 	//Create http server
