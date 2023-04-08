@@ -21,5 +21,5 @@ func VerifyToken(token string) (res string, err error) {
 
 	//Return claims
 	claims := parse_token.Claims.(jwt.MapClaims)
-	return claims["username"].(string), nil
+	return claims["phone"].(string), nil
 }

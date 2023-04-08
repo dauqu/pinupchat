@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"pinupchat/actions"
-	"pinupchat/routes"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,9 +11,9 @@ import (
 )
 
 func main() {
+
 	//Create gin engine and routes
 	r := gin.Default()
-
 
 	//Generate token
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -35,14 +34,12 @@ func main() {
 	}
 	fmt.Println(ttt)
 
-	//Test route
-	r.GET("/test", routes.InsertUser)
-
 	//Group routes
 	autha := r.Group("/auth")
 	{
 		autha.POST("/register", auth.Register)
 		autha.POST("/login", auth.Login)
+		autha.POST("/check-login", auth.CheckLogin)
 	}
 	
 	//Create http server
