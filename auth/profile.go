@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -22,10 +20,6 @@ func Profile(c *gin.Context) {
 	claims, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
 	})
-
-	//print id from token
-	fmt.Println(claims.Claims.(jwt.MapClaims)["phone"])
-
 	if err != nil {
 		c.JSON(200, gin.H{"message": err.Error(), "isLogged": false})
 		return
@@ -33,8 +27,9 @@ func Profile(c *gin.Context) {
 
 	//Check if token is valid
 	if claims.Valid {
-		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true})
-		return
+		//Get claims
+		claims := claims.Claims.(*jwt.MapClaims)
+		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true, "claims": claims})
 	}
 
 	c.JSON(200, gin.H{"message": "Token is invalid", "isLogged": true})
