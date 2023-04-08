@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	//Create gin engine
+	//Create gin engine and routes
 	r := gin.Default()
 
 
