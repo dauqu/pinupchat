@@ -35,7 +35,7 @@ func Login(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 100*time.Second)
 
 	//Check if user exists
-	user, err := UsersCollection.FindOne(ctx, bson.M{"username": login.Phone}).DecodeBytes()
+	user, err := UsersCollection.FindOne(ctx, bson.M{"phone": login.Phone}).DecodeBytes()
 	if err == mongo.ErrNoDocuments {
 		c.JSON(400, gin.H{"message": "User not found"})
 		return
@@ -62,7 +62,7 @@ func Login(c *gin.Context) {
 	//Generate token
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = login.Phone
+	claims["phone"] = login.Phone
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	t, err := token.SignedString([]byte("secret"))
