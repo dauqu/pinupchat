@@ -11,6 +11,7 @@ type User struct {
 	LastName     string             `bson:"last_name,omitempty"`
 	Phone        string             `bson:"phone,omitempty"`
 	Email        string             `bson:"email,omitempty"`
+	Country      string             `bson:"country,omitempty"`
 	About        string             `bson:"about,omitempty"`
 	Avatar       string             `bson:"avatar,omitempty"`
 	OnlineStatus string             `bson:"online_status,omitempty"` // online, offline, busy
