@@ -27,9 +27,8 @@ func Profile(c *gin.Context) {
 
 	//Check if token is valid
 	if claims.Valid {
-		//Get claims
-		claims := claims.Claims.(*jwt.MapClaims)
-		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true, "claims": claims})
+		c.JSON(200, gin.H{"message": "Token is valid", "isLogged": true})
+		return
 	}
 
 	c.JSON(200, gin.H{"message": "Token is invalid", "isLogged": true})
