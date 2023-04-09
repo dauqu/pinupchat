@@ -81,13 +81,6 @@ type Conversation struct {
 	CreatedAt time.Time          `bson:"created_at,omitempty"`
 }
 
-type Members struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	UserID    string             `bson:"user_id,omitempty"` // user id
-	CreatedAt time.Time          `bson:"created_at,omitempty"`
-	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
-}
-
 type Message struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Sender    string             `bson:"sender,omitempty"` // user id

@@ -31,8 +31,11 @@ func main() {
 		routess.GET("/get-status", routes.GetStatus)
 		routess.DELETE("/delete-status/:id", routes.DeleteStatus)
 
-		routess.POST("/create-conversation", routes.CreateConversation)
-		routess.GET("/get-conversations", routes.GetConversations)
+		routess.POST("/create-contact", routes.CreateContact)
+		routess.GET("/get-contacts", routes.GetContacts)
+
+		routess.POST("/create-message", routes.CreateMessage)
+		routess.GET("/get-messages/:id", routes.GetMessages)
 
 	}
 
