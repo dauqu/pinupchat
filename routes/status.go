@@ -57,8 +57,8 @@ func GetStatus(c *gin.Context) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	//Get status
-	cursor, err := StatusCollection.Find(ctx, bson.M{"user_id": idStr})
+	//Get status if deleted is false
+	cursor, err := StatusCollection.Find(ctx, bson.M{"$match": bson.M{"user_id": idStr, "is_deleted": false}})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
@@ -71,4 +71,27 @@ func GetStatus(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"message": "Status found", "status": results})
+}
+
+// Delete status
+func DeleteStatus(c *gin.Context) {
+
+	id, err := actions.IdFromToken(c.GetHeader("Authorization"))
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	statusId := c.Param("id")
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	//Delete status
+	_, err = StatusCollection.UpdateOne(ctx, bson.M{"_id": statusId, "user_id": id}, bson.M{"$set": bson.M{"is_deleted": true}})
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Status deleted"})
 }
