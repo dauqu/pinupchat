@@ -70,5 +70,5 @@ func GetStatus(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Status found", "data": results})
+	c.JSON(200, gin.H{"message": "Status found", "status": results})
 }
