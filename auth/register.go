@@ -55,7 +55,7 @@ func Register(c *gin.Context) {
 
 	//Insert user
 	_, err = UsersCollection.InsertOne(ctx, bson.M{
-		"full_name":     user.FullName,
+		"name":          user.Name,
 		"phone":         user.Phone,
 		"country":       user.Country,
 		"email":         "info@example.com",
