@@ -44,6 +44,10 @@ func CreateConversation(c *gin.Context) {
 		"user_id":    user_id,
 		"partner_id": body.PartnerId,
 		"messages":   bson.A{},
+		"archived":   false,
+		"deleted":    false,
+		"blocked":    false,
+		"muted":      false,
 		"created_at": time.Now(),
 	})
 	if err != nil {

@@ -73,6 +73,10 @@ type Conversation struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	UserID    string             `bson:"user_id,omitempty"` // user id
 	PartnerID string             `bson:"partner_id,omitempty"`
+	Archived  bool               `bson:"archived,omitempty"`
+	Deleted   bool               `bson:"deleted,omitempty"`
+	Blocked   bool               `bson:"blocked,omitempty"`
+	Muted     bool               `bson:"muted,omitempty"`
 	Messages  []Message          `bson:"messages,omitempty"`
 	CreatedAt time.Time          `bson:"created_at,omitempty"`
 }
