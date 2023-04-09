@@ -45,12 +45,11 @@ type Message struct {
 
 type Status struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Uploader  string             `bson:"uploader,omitempty"` // user id
+	UserID    string             `bson:"user_id,omitempty"` // user id
 	Content   string             `bson:"content,omitempty"`
 	IsDeleted bool               `bson:"is_deleted,omitempty"`
 	SeenBy    []string           `bson:"seen_by,omitempty"`
 	CreatedAt time.Time          `bson:"created_at,omitempty"`
-	ExpiresAt time.Time          `bson:"expires_at,omitempty"`
 }
 
 type Calls struct {

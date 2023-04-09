@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -50,8 +49,6 @@ func CheckLogin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID", "isLogged": false})
 		return
 	}
-
-	fmt.Println(idStr)
 
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
