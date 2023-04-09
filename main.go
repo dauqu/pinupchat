@@ -29,6 +29,7 @@ func main() {
 	{
 		routess.POST("/add-status", routes.CreateStatus)
 		routess.GET("/get-status", routes.GetStatus)
+		routess.DELETE("/delete-status/:id", routes.DeleteStatus)
 
 	}
 	
