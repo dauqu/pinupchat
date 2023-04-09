@@ -47,9 +47,8 @@ func CreateStatus(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "Status created"})
 }
 
-
 func GetStatus(c *gin.Context) {
-	
+
 	idStr, err := actions.IdFromToken(c.GetHeader("Authorization"))
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
@@ -59,17 +58,17 @@ func GetStatus(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Get status
-	status, err := StatusCollection.Find(ctx, bson.M{"user_id": idStr})
+	cursor, err := StatusCollection.Find(ctx, bson.M{"user_id": idStr})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
-	var statuses []models.Status
-	if err = status.All(ctx, &statuses); err != nil {
+	var results []bson.M
+	if err := cursor.All(ctx, &results); err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Status fetched", "data": statuses})
+	c.JSON(200, gin.H{"message": "Status found", "data": results})
 }
