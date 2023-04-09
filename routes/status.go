@@ -48,7 +48,6 @@ func CreateStatus(c *gin.Context) {
 }
 
 func GetStatus(c *gin.Context) {
-
 	idStr, err := actions.IdFromToken(c.GetHeader("Authorization"))
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
@@ -58,7 +57,7 @@ func GetStatus(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Get status if deleted is false
-	cursor, err := StatusCollection.Find(ctx, bson.M{"$match": bson.M{"user_id": idStr, "is_deleted": false}})
+	cursor, err := StatusCollection.Find(ctx, bson.M{"user_id": idStr, "is_deleted": false})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
