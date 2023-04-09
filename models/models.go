@@ -31,18 +31,6 @@ type Room struct {
 	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
 }
 
-type Message struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	From      string             `bson:"from,omitempty"` // user id
-	To        string             `bson:"to,omitempty"`   // user id or room id
-	Content   string             `bson:"content,omitempty"`
-	IsRead    bool               `bson:"is_read,omitempty"`
-	IsDeleted bool               `bson:"is_deleted,omitempty"`
-	IsEdited  bool               `bson:"is_edited,omitempty"`
-	CreatedAt time.Time          `bson:"created_at,omitempty"`
-	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
-}
-
 type Status struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	UserID    string             `bson:"user_id,omitempty"` // user id
@@ -77,6 +65,32 @@ type Group struct {
 	About     string             `bson:"about,omitempty"` // room description
 	Name      string             `bson:"name,omitempty"`
 	Users     []string           `bson:"users,omitempty"`
+	CreatedAt time.Time          `bson:"created_at,omitempty"`
+	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
+}
+
+type Conversation struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    string             `bson:"user_id,omitempty"` // user id
+	PartnerID string             `bson:"partner_id,omitempty"`
+	Messages  []Message          `bson:"messages,omitempty"`
+	CreatedAt time.Time          `bson:"created_at,omitempty"`
+}
+
+type Members struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    string             `bson:"user_id,omitempty"` // user id
+	CreatedAt time.Time          `bson:"created_at,omitempty"`
+	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
+}
+
+type Message struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	Sender    string             `bson:"sender,omitempty"` // user id
+	Content   string             `bson:"content,omitempty"`
+	IsRead    bool               `bson:"is_read,omitempty"`
+	IsDeleted bool               `bson:"is_deleted,omitempty"`
+	IsEdited  bool               `bson:"is_edited,omitempty"`
 	CreatedAt time.Time          `bson:"created_at,omitempty"`
 	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
 }

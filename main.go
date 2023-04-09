@@ -31,8 +31,11 @@ func main() {
 		routess.GET("/get-status", routes.GetStatus)
 		routess.DELETE("/delete-status/:id", routes.DeleteStatus)
 
+		routess.POST("/create-conversation", routes.CreateConversation)
+		routess.GET("/get-conversations", routes.GetConversations)
+
 	}
-	
+
 	//Create http server
 	r.Run(":8080")
 }
