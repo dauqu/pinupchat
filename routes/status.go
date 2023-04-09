@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -75,7 +76,7 @@ func GetStatus(c *gin.Context) {
 // Delete status
 func DeleteStatus(c *gin.Context) {
 
-	id, err := actions.IdFromToken(c.GetHeader("Authorization"))
+	user_id, err := actions.IdFromToken(c.GetHeader("Authorization"))
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
@@ -83,10 +84,12 @@ func DeleteStatus(c *gin.Context) {
 
 	statusId := c.Param("id")
 
+	id, _ := primitive.ObjectIDFromHex(statusId)
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Delete status
-	_, err = StatusCollection.UpdateOne(ctx, bson.M{"_id": statusId, "user_id": id}, bson.M{"$set": bson.M{"is_deleted": true}})
+	_, err = StatusCollection.UpdateOne(ctx, bson.M{"_id": id, "user_id": user_id}, bson.M{"$set": bson.M{"is_deleted": true}})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
