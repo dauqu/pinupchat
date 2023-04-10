@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,36 +16,53 @@ import (
 
 var ConversationCollection *mongo.Collection = config.GetCollection(config.DB, "conversation")
 
+var wsupgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+
 func CreateMessage(c *gin.Context) {
+
 	type Body struct {
 		ConversationID string `json:"conversation_id"`
 		Content        string `json:"content"`
 	}
 
+	//Create websocket connection
+	ws, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		ws.WriteJSON(gin.H{"error": err.Error()})
+		return
+	}
+
 	// Parse request body
 	var body Body
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		ws.WriteJSON(gin.H{"error": err.Error()})
 		return
 	}
 
 	// Check authorization token
 	authToken := c.GetHeader("Authorization")
 	if authToken == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing authorization token"})
+		ws.WriteJSON(gin.H{"error": "Invalid token"})
 		return
 	}
 
 	userID, err := actions.IdFromToken(authToken)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid authorization token"})
+		ws.WriteJSON(gin.H{"error": err.Error()})
 		return
 	}
 
 	// Convert conversation ID to ObjectID
 	conversationID, err := primitive.ObjectIDFromHex(body.ConversationID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid conversation ID"})
+		ws.WriteJSON(gin.H{"error": err.Error()})
 		return
 	}
 
@@ -64,12 +82,12 @@ func CreateMessage(c *gin.Context) {
 	update := bson.M{"$push": bson.M{"messages": message}}
 	_, err = ConversationCollection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add message to conversation"})
+		ws.WriteJSON(gin.H{"error": err.Error()})
 		return
 	}
 
-	// Return success response
-	c.JSON(http.StatusOK, gin.H{"message": "Message created"})
+	// Send message to other user
+	ws.WriteJSON(message)
 }
 
 func GetMessages(c *gin.Context) {
