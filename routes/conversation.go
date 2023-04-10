@@ -73,17 +73,18 @@ func CreateMessage(c *gin.Context) {
 }
 
 func GetMessages(c *gin.Context) {
+	
 	//Return if Auth token is invalid
-	// if c.GetHeader("Authorization") == "" || c.GetHeader("Authorization") == "null" || c.GetHeader("Authorization") == "undefined" {
-	// 	c.JSON(400, gin.H{"message": "Invalid token"})
-	// 	return
-	// }
+	if c.GetHeader("Authorization") == "" || c.GetHeader("Authorization") == "null" || c.GetHeader("Authorization") == "undefined" {
+		c.JSON(400, gin.H{"message": "Invalid token"})
+		return
+	}
 
-	// user_id, err := actions.IdFromToken(c.GetHeader("Authorization"))
-	// if err != nil {
-	// 	c.JSON(400, gin.H{"message": err.Error()})
-	// 	return
-	// }
+	user_id, err := actions.IdFromToken(c.GetHeader("Authorization"))
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
 
 	//Get ID from params
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
@@ -109,5 +110,5 @@ func GetMessages(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, conversations)
+	c.JSON(200, gin.H{"message": conversations, "user_id": user_id})
 }
