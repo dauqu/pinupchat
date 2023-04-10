@@ -103,6 +103,10 @@ func GetContacts(c *gin.Context) {
 		bson.M{"$project": bson.M{
 			"partner.password": 0,
 		}},
+		//Remove messages from conversation
+		bson.M{"$project": bson.M{
+			"partner.messages": 0,
+		}},
 	}
 
 	//Get conversation
