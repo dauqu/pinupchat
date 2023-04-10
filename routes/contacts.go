@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func CreateContact(c *gin.Context) {
@@ -35,10 +36,13 @@ func CreateContact(c *gin.Context) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
+	newuser_id, _ := primitive.ObjectIDFromHex(user_id)
+	partner_id, _ := primitive.ObjectIDFromHex(body.PartnerId)
+
 	//Insert conversation
 	_, err = ConversationCollection.InsertOne(ctx, bson.M{
-		"user_id":    user_id,
-		"partner_id": body.PartnerId,
+		"user_id":   newuser_id, 
+		"partner_id": partner_id,
 		"messages":   bson.A{},
 		"archived":   false,
 		"deleted":    false,
@@ -69,15 +73,33 @@ func GetContacts(c *gin.Context) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	filter := bson.M{
-		"$or": []bson.M{
-			{"user_id": user_id},
-			{"partner_id": user_id},
+	// filter := bson.M{
+	// 	"$or": []bson.M{
+	// 		{"user_id": user_id},
+	// 		{"partner_id": user_id},
+	// 	},
+	// }
+
+	pipeline := bson.A{
+		bson.M{
+			"$lookup": bson.M{
+				"from":         "users",
+				"localField":   "userID",
+				"foreignField": "_id",
+				"as":           "user",
+			},
+		},
+		bson.M{
+			"$lookup": bson.M{
+				"from":         "users",
+				"localField":   "partnerID",
+				"foreignField": "_id",
+				"as":           "partner",
+			},
 		},
 	}
 
-	//Get conversation
-	cursor, err := ConversationCollection.Find(ctx, filter)
+	cursor, err := ConversationCollection.Aggregate(ctx, pipeline)
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
