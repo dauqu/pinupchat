@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"fmt"
 	"pinupchat/actions"
 	"time"
 
@@ -36,13 +37,13 @@ func CreateContact(c *gin.Context) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	newuser_id, _ := primitive.ObjectIDFromHex(user_id)
-	partner_id, _ := primitive.ObjectIDFromHex(body.PartnerId)
+	userid, _ := primitive.ObjectIDFromHex(user_id)
+	oartnerid, _ := primitive.ObjectIDFromHex(body.PartnerId)
 
 	//Insert conversation
 	_, err = ConversationCollection.InsertOne(ctx, bson.M{
-		"user_id":   newuser_id, 
-		"partner_id": partner_id,
+		"user_id":    userid,
+		"partner_id": oartnerid,
 		"messages":   bson.A{},
 		"archived":   false,
 		"deleted":    false,
@@ -71,34 +72,35 @@ func GetContacts(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(user_id)
+
+	// userid, _ := primitive.ObjectIDFromHex(user_id)
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	// filter := bson.M{
-	// 	"$or": []bson.M{
-	// 		{"user_id": user_id},
-	// 		{"partner_id": user_id},
-	// 	},
-	// }
-
+	//pipeline
 	pipeline := bson.A{
-		bson.M{
-			"$lookup": bson.M{
-				"from":         "users",
-				"localField":   "userID",
-				"foreignField": "_id",
-				"as":           "user",
-			},
-		},
-		bson.M{
-			"$lookup": bson.M{
-				"from":         "users",
-				"localField":   "partnerID",
-				"foreignField": "_id",
-				"as":           "partner",
-			},
-		},
+		// bson.M{"$match": filter},
+		bson.M{"$lookup": bson.M{
+			"from":         "users",
+			"localField":   "user_id",
+			"foreignField": "_id",
+			"as":           "partner",
+		}},
+		// bson.M{"$lookup": bson.M{
+		// 	"from":         "users",
+		// 	"localField":   "user_id",
+		// 	"foreignField": "_id",
+		// 	"as":           "user",
+		// }},
+
+		//Remove password from user object
+		bson.M{"$project": bson.M{
+			"partner.password": 0,
+		}},
 	}
 
+	//Get conversation
 	cursor, err := ConversationCollection.Aggregate(ctx, pipeline)
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
@@ -111,5 +113,5 @@ func GetContacts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Conversations fetched", "id": user_id, "conversations": conversations})
+	c.JSON(200, conversations)
 }
