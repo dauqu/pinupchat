@@ -109,5 +109,5 @@ func GetMessages(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"conversations": conversations})
+	c.JSON(200, conversations)
 }
