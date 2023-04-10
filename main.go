@@ -37,6 +37,9 @@ func main() {
 		routess.POST("/create-message", routes.CreateMessage)
 		routess.GET("/get-messages/:id", routes.GetMessages)
 
+		routess.POST("/add-calls", routes.AddCalls)
+		routess.GET("/get-calls", routes.GetCalls)
+
 	}
 
 	//Create http server
