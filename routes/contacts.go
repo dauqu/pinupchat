@@ -79,12 +79,8 @@ func GetContacts(c *gin.Context) {
 	// Create the $or operator
 	filter := bson.M{
 		"$or": bson.A{
+			bson.M{"partner_id": userid},
 			bson.M{"user_id": userid},
-		},
-
-		//Hide message id partner and user is same
-		"$expr": bson.M{
-			"$ne": bson.A{"$partner_id", "$user_id"},
 		},
 	}
 
@@ -97,16 +93,19 @@ func GetContacts(c *gin.Context) {
 			"foreignField": "_id",
 			"as":           "partner",
 		}},
-		// bson.M{"$lookup": bson.M{
-		// 	"from":         "users",
-		// 	"localField":   "user_id",
-		// 	"foreignField": "_id",
-		// 	"as":           "user",
-		// }},
-
+		bson.M{"$lookup": bson.M{
+			"from":         "users",
+			"localField":   "user_id",
+			"foreignField": "_id",
+			"as":           "user",
+		}},
 		//Remove password from user object
 		bson.M{"$project": bson.M{
 			"partner.password": 0,
+		}},
+		//Remove password from user object
+		bson.M{"$project": bson.M{
+			"user.password": 0,
 		}},
 		//Remove messages from conversation
 		bson.M{"$project": bson.M{
