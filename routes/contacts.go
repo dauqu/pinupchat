@@ -89,5 +89,5 @@ func GetContacts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"conversations": conversations, "message": "Conversations fetched", "id": user_id})
+	c.JSON(200, gin.H{"message": "Conversations fetched", "id": user_id, "conversations": conversations})
 }
