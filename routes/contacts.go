@@ -76,12 +76,13 @@ func GetContacts(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Filter
-	filter := bson.M{
-		"$or": []bson.M{
-			{"user_id": userid},
-			{"partner_id": userid},
-		},
-	}
+	// Create the $or operator
+filter := bson.M{
+    "$or": bson.A{
+        bson.M{"partner_id": userid},
+        bson.M{"user_id": userid},
+    },
+}
 
 	//pipeline
 	pipeline := bson.A{
