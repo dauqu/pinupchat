@@ -77,12 +77,16 @@ func GetContacts(c *gin.Context) {
 
 	//Filter
 	// Create the $or operator
-filter := bson.M{
-    "$or": bson.A{
-        bson.M{"partner_id": userid},
-        bson.M{"user_id": userid},
-    },
-}
+	filter := bson.M{
+		"$or": bson.A{
+			bson.M{"user_id": userid},
+		},
+
+		//Hide message id partner and user is same
+		"$expr": bson.M{
+			"$ne": bson.A{"$partner_id", "$user_id"},
+		},
+	}
 
 	//pipeline
 	pipeline := bson.A{
