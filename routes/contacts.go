@@ -34,15 +34,35 @@ func CreateContact(c *gin.Context) {
 		return
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-
+	poartnerid, _ := primitive.ObjectIDFromHex(body.PartnerId)
 	userid, _ := primitive.ObjectIDFromHex(user_id)
-	oartnerid, _ := primitive.ObjectIDFromHex(body.PartnerId)
+
+	//CHeck partner id  and user id are not the same
+	if user_id == body.PartnerId {
+		c.JSON(400, gin.H{"message": "You can't add yourself"})
+		return
+	}
+
+	//Check if partner exists
+	_, err = UsersCollection.FindOne(context.Background(), bson.M{"_id": poartnerid}).DecodeBytes()
+	if err != nil {
+		c.JSON(400, gin.H{"message": "Partner not found"})
+		return
+	}
+
+	//Check if conversation already exists
+	_, err = ConversationCollection.FindOne(context.Background(), bson.M{"user_id": userid, "partner_id": poartnerid}).DecodeBytes()
+	if err == nil {
+		c.JSON(400, gin.H{"message": "Conversation already exists"})
+		return
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Insert conversation
 	_, err = ConversationCollection.InsertOne(ctx, bson.M{
 		"user_id":    userid,
-		"partner_id": oartnerid,
+		"partner_id": poartnerid,
 		"messages":   bson.A{},
 		"archived":   false,
 		"deleted":    false,
