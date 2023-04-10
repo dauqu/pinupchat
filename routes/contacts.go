@@ -88,7 +88,7 @@ func GetContacts(c *gin.Context) {
 		bson.M{"$match": filter},
 		bson.M{"$lookup": bson.M{
 			"from":         "users",
-			"localField":   "user_id",
+			"localField":   "partner_id",
 			"foreignField": "_id",
 			"as":           "partner",
 		}},
