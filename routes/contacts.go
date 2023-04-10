@@ -2,7 +2,6 @@ package routes
 
 import (
 	"context"
-	"fmt"
 	"pinupchat/actions"
 	"time"
 
@@ -72,15 +71,21 @@ func GetContacts(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(user_id)
-
-	// userid, _ := primitive.ObjectIDFromHex(user_id)
+	userid, _ := primitive.ObjectIDFromHex(user_id)
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
+	//Filter
+	filter := bson.M{
+		"$or": []bson.M{
+			{"user_id": userid},
+			{"partner_id": userid},
+		},
+	}
+
 	//pipeline
 	pipeline := bson.A{
-		// bson.M{"$match": filter},
+		bson.M{"$match": filter},
 		bson.M{"$lookup": bson.M{
 			"from":         "users",
 			"localField":   "user_id",
