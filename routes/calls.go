@@ -3,32 +3,54 @@ package routes
 import (
 	"context"
 	"fmt"
-	"pinupchat/actions"
-	"pinupchat/config"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"pinupchat/actions"
+	"pinupchat/config"
+	"pinupchat/models"
+	"time"
 )
 
 var CallsCollection *mongo.Collection = config.GetCollection(config.DB, "calls")
 
 func AddCalls(c *gin.Context) {
+
+	//Check Header Authorization
+	if c.GetHeader("Authorization") == "" {
+		c.JSON(400, gin.H{"message": "Invalid token"})
+		return
+	}
+
 	idStr, err := actions.IdFromToken(c.GetHeader("Authorization"))
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
+	//Read body
+	var body models.Calls
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	from_id, _ := primitive.ObjectIDFromHex(idStr)
+	to_id, _ := primitive.ObjectIDFromHex(body.To)
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Add call to database
 	_, err = CallsCollection.InsertOne(ctx, bson.M{
-		"user_id":    idStr,
-		"partner_id": c.Param("id"),
+		"_id":        primitive.NewObjectID(),
+		"from":       from_id,
+		"to":         to_id,
+		"type":       body.Type,
+		"status":     body.Status,
+		"is_deleted": false,
 		"created_at": time.Now(),
+		"updated_at": time.Now(),
 	})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})

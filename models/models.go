@@ -44,8 +44,9 @@ type Calls struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	From      string             `bson:"from,omitempty"` // user id
 	To        string             `bson:"to,omitempty"`   // user id or room id
-	IsVideo   bool               `bson:"is_video,omitempty"`
+	Type      string             `bson:"type,omitempty"` // video or audio
 	IsDeleted bool               `bson:"is_deleted,omitempty"`
+	Status    string             `bson:"status,omitempty"` // pending, accepted, rejected
 	CreatedAt time.Time          `bson:"created_at,omitempty"`
 	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
 }
