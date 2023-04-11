@@ -148,3 +148,19 @@ func GetContacts(c *gin.Context) {
 
 	c.JSON(200, gin.H{"user_id": user_id, "conversations": conversations})
 }
+
+func Archived(c *gin.Context) {
+
+}
+
+func Delete(c *gin.Context) {
+
+}
+
+func Block(c *gin.Context) {
+
+}
+
+func Mute(c *gin.Context) {
+
+}
