@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"pinupchat/actions"
 	"pinupchat/config"
@@ -23,7 +24,6 @@ var wsupgrader = websocket.Upgrader{
 		return true
 	},
 }
-
 
 func CreateMessage(c *gin.Context) {
 
@@ -123,10 +123,9 @@ func GetMessages(c *gin.Context) {
 	c.JSON(200, conversations)
 }
 
-
-//Delete message 
+// Delete message
 func DeleteMessage(c *gin.Context) {
-	
+
 	type Body struct {
 		ConversationID string `json:"conversation_id"`
 		MessageID      string `json:"message_id"`
@@ -139,16 +138,12 @@ func DeleteMessage(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(body.ConversationID)
+
 	// Check authorization token
 	authToken := c.GetHeader("Authorization")
 	if authToken == "" {
 		c.JSON(400, gin.H{"message": "Invalid token"})
-		return
-	}
-
-	userID, err := actions.IdFromToken(authToken)
-	if err != nil {
-		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -166,8 +161,8 @@ func DeleteMessage(c *gin.Context) {
 		return
 	}
 
-	// Delete message
-	filter := bson.M{"_id": conversationID, "messages._id": messageID, "messages.sender": userID}
+	// Set deleted true in message
+	filter := bson.M{"_id": conversationID, "messages._id": messageID}
 	update := bson.M{"$set": bson.M{"messages.$.is_deleted": true}}
 	_, err = ConversationCollection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
