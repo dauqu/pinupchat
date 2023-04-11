@@ -42,6 +42,8 @@ func main() {
 		routess.POST("/add-calls", routes.AddCalls)
 		routess.GET("/get-calls", routes.GetCalls)
 
+		routess.Any("/create-rooms", routes.CreateRooms)
+
 	}
 
 	//Create http server
