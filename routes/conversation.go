@@ -32,37 +32,30 @@ func CreateMessage(c *gin.Context) {
 		Content        string `json:"content"`
 	}
 
-	//Create websocket connection
-	ws, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		ws.WriteJSON(gin.H{"error": err.Error()})
-		return
-	}
-
 	// Parse request body
 	var body Body
 	if err := c.ShouldBindJSON(&body); err != nil {
-		ws.WriteJSON(gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
 	// Check authorization token
 	authToken := c.GetHeader("Authorization")
 	if authToken == "" {
-		ws.WriteJSON(gin.H{"error": "Invalid token"})
+		c.JSON(400, gin.H{"message": "Invalid token"})
 		return
 	}
 
 	userID, err := actions.IdFromToken(authToken)
 	if err != nil {
-		ws.WriteJSON(gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
 	// Convert conversation ID to ObjectID
 	conversationID, err := primitive.ObjectIDFromHex(body.ConversationID)
 	if err != nil {
-		ws.WriteJSON(gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -82,12 +75,11 @@ func CreateMessage(c *gin.Context) {
 	update := bson.M{"$push": bson.M{"messages": message}}
 	_, err = ConversationCollection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		ws.WriteJSON(gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
-	// Send message to other user
-	ws.WriteJSON(message)
+	c.JSON(200, gin.H{"message": "Message created"})
 }
 
 func GetMessages(c *gin.Context) {
