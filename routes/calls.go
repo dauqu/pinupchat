@@ -175,7 +175,6 @@ func CreateRooms(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	defer conn.Close()
 
 	// Read room ID and join the room
 	_, roomID, err := conn.ReadMessage()
