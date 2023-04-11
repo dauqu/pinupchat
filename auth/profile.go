@@ -55,3 +55,34 @@ func Profile(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "User found", "user": results})
 }
+
+
+//Get all accounts
+func GetAllUsers(c *gin.Context) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	//Find all users
+	pipeline := bson.A{
+		bson.M{"$project": bson.M{
+			"password": 0,
+		}},
+		//Hide email 
+		bson.M{"$project": bson.M{
+			"email": 0,
+		}},
+	}
+
+	cursor, err := UsersCollection.Aggregate(ctx, pipeline)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	var results []bson.M
+	if err := cursor.All(ctx, &results); err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Users found", "users": results})
+}

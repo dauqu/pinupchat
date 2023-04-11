@@ -23,6 +23,7 @@ func main() {
 		autha.POST("/login", auth.Login)
 		autha.GET("/check-login", auth.CheckLogin)
 		autha.GET("/profile", auth.Profile)
+		autha.GET("/get-all-users", auth.GetAllUsers)
 	}
 
 	routess := r.Group("/api")
