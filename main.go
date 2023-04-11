@@ -36,6 +36,7 @@ func main() {
 		routess.GET("/get-contacts", routes.GetContacts)
 
 		routess.Any("/create-message", routes.CreateMessage)
+		routess.POST("/delete-message", routes.DeleteMessage)
 		routess.GET("/get-messages/:id", routes.GetMessages)
 
 		routess.POST("/add-calls", routes.AddCalls)

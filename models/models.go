@@ -85,7 +85,6 @@ type Message struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Sender    string             `bson:"sender,omitempty"` // user id
 	Content   string             `bson:"content,omitempty"`
-	IsRead    bool               `bson:"is_read,omitempty"`
 	IsDeleted bool               `bson:"is_deleted,omitempty"`
 	IsEdited  bool               `bson:"is_edited,omitempty"`
 	CreatedAt time.Time          `bson:"created_at,omitempty"`

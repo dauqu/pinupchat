@@ -61,9 +61,9 @@ func CreateMessage(c *gin.Context) {
 
 	// Create message object
 	message := bson.M{
+		"_id":        primitive.NewObjectID(),
 		"sender":     userID,
 		"content":    body.Content,
-		"is_read":    false,
 		"is_deleted": false,
 		"is_edited":  false,
 		"created_at": time.Now(),
@@ -121,4 +121,59 @@ func GetMessages(c *gin.Context) {
 	}
 
 	c.JSON(200, conversations)
+}
+
+
+//Delete message 
+func DeleteMessage(c *gin.Context) {
+	
+	type Body struct {
+		ConversationID string `json:"conversation_id"`
+		MessageID      string `json:"message_id"`
+	}
+
+	// Parse request body
+	var body Body
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	// Check authorization token
+	authToken := c.GetHeader("Authorization")
+	if authToken == "" {
+		c.JSON(400, gin.H{"message": "Invalid token"})
+		return
+	}
+
+	userID, err := actions.IdFromToken(authToken)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	// Convert conversation ID to ObjectID
+	conversationID, err := primitive.ObjectIDFromHex(body.ConversationID)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	// Convert message ID to ObjectID
+	messageID, err := primitive.ObjectIDFromHex(body.MessageID)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	// Delete message
+	filter := bson.M{"_id": conversationID, "messages._id": messageID, "messages.sender": userID}
+	update := bson.M{"$set": bson.M{"messages.$.is_deleted": true}}
+	_, err = ConversationCollection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Message deleted"})
 }
