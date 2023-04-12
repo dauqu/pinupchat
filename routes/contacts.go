@@ -50,16 +50,31 @@ func CreateContact(c *gin.Context) {
 		return
 	}
 
-	//Check if conversation already exists
-	filter := bson.M{
-		"participents._id": userid,
+	_, err = ConversationCollection.FindOne(context.Background(), bson.M{
+		"participents": bson.A{
+			bson.M{
+				"_id": userid,
+			},
+			bson.M{
+				"_id": poartnerid,
+			},
+		},
+	}).DecodeBytes()
+	if err == nil {
+		c.JSON(400, gin.H{"message": "Conversation already exists"})
+		return
 	}
 
-	pipeline := bson.A{
-		bson.M{"$match": filter},
-	}
-
-	_, err = ConversationCollection.FindOne(context.Background(), pipeline).DecodeBytes()
+	_, err = ConversationCollection.FindOne(context.Background(), bson.M{
+		"participents": bson.A{
+			bson.M{
+				"_id": poartnerid,
+			},
+			bson.M{
+				"_id": userid,
+			},
+		},
+	}).DecodeBytes()
 	if err == nil {
 		c.JSON(400, gin.H{"message": "Conversation already exists"})
 		return
