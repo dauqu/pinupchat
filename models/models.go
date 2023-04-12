@@ -72,8 +72,7 @@ type Group struct {
 
 type Conversation struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	UserID    primitive.ObjectID `bson:"user_id,omitempty"` // user id
-	PartnerID primitive.ObjectID `bson:"partner_id,omitempty"`
+	Participants []string         `bson:"participants,omitempty"`
 	Archived  bool               `bson:"archived,omitempty"`
 	Deleted   bool               `bson:"deleted,omitempty"`
 	Blocked   bool               `bson:"blocked,omitempty"`

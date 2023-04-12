@@ -51,14 +51,16 @@ func CreateContact(c *gin.Context) {
 	}
 
 	//Check if conversation already exists
-	_, err = ConversationCollection.FindOne(context.Background(), bson.M{"user_id": userid, "partner_id": poartnerid}).DecodeBytes()
-	if err == nil {
-		c.JSON(400, gin.H{"message": "Conversation already exists"})
-		return
-	}
-
-	//Check if conversation already exists
-	_, err = ConversationCollection.FindOne(context.Background(), bson.M{"user_id": poartnerid, "partner_id": userid}).DecodeBytes()
+	_, err = ConversationCollection.FindOne(context.Background(), bson.M{
+		"participents": bson.A{
+			bson.M{
+				"_id": userid,
+			},
+			bson.M{
+				"_id": poartnerid,
+			},
+		},
+	}).DecodeBytes()
 	if err == nil {
 		c.JSON(400, gin.H{"message": "Conversation already exists"})
 		return
@@ -68,8 +70,14 @@ func CreateContact(c *gin.Context) {
 
 	//Insert conversation
 	_, err = ConversationCollection.InsertOne(ctx, bson.M{
-		"user_id":    userid,
-		"partner_id": poartnerid,
+		"participents": bson.A{
+			bson.M{
+				"_id": userid,
+			},
+			bson.M{
+				"_id": poartnerid,
+			},
+		},
 		"messages":   bson.A{},
 		"archived":   false,
 		"deleted":    false,
@@ -105,38 +113,66 @@ func GetContacts(c *gin.Context) {
 	//Filter
 	// Create the $or operator
 	filter := bson.M{
-		"$or": bson.A{
-			bson.M{"partner_id": userid},
-			bson.M{"user_id": userid},
-		},
+		"participents._id": userid,
+		// "$or": bson.A{
+		// 	bson.M{"partner_id": userid},
+		// 	bson.M{"user_id": userid},
+		// },
 	}
 
 	//pipeline
 	pipeline := bson.A{
 		bson.M{"$match": filter},
+		// bson.M{"$lookup": bson.M{
+		// 	"from":         "users",
+		// 	"localField":   "partner_id",
+		// 	"foreignField": "_id",
+		// 	"as":           "partner",
+		// }},
+		// bson.M{"$lookup": bson.M{
+		// 	"from":         "users",
+		// 	"localField":   "user_id",
+		// 	"foreignField": "_id",
+		// 	"as":           "user",
+		// }},
+		//Lookup participents and get their names
 		bson.M{"$lookup": bson.M{
 			"from":         "users",
-			"localField":   "partner_id",
+			"localField":   "participents._id",
 			"foreignField": "_id",
-			"as":           "partner",
-		}},
-		bson.M{"$lookup": bson.M{
-			"from":         "users",
-			"localField":   "user_id",
-			"foreignField": "_id",
-			"as":           "user",
+			"as":           "participents",
 		}},
 		//Remove password from user object
 		bson.M{"$project": bson.M{
-			"partner.password": 0,
+			"participents.password": 0,
 		}},
-		//Remove password from user object
-		bson.M{"$project": bson.M{
-			"user.password": 0,
-		}},
+
 		//Remove messages from conversation
 		bson.M{"$project": bson.M{
 			"messages": 0,
+		}},
+
+		//Remove blocked conversations
+		bson.M{"$match": bson.M{
+			"blocked": false,
+		}},
+
+		//Remove archived conversations
+		bson.M{"$match": bson.M{
+			"archived": false,
+		}},
+
+		//Remove my ID from participents
+		bson.M{"$project": bson.M{
+			"participents": bson.M{
+				"$filter": bson.M{
+					"input": "$participents",
+					"as":    "participent",
+					"cond": bson.M{
+						"$ne": bson.A{"$$participent._id", userid},
+					},
+				},
+			},
 		}},
 	}
 
