@@ -57,6 +57,13 @@ func CreateContact(c *gin.Context) {
 		return
 	}
 
+	//Check if conversation already exists
+	_, err = ConversationCollection.FindOne(context.Background(), bson.M{"user_id": poartnerid, "partner_id": userid}).DecodeBytes()
+	if err == nil {
+		c.JSON(400, gin.H{"message": "Conversation already exists"})
+		return
+	}
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	//Insert conversation
