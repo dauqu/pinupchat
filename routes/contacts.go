@@ -51,16 +51,15 @@ func CreateContact(c *gin.Context) {
 	}
 
 	//Check if conversation already exists
-	_, err = ConversationCollection.FindOne(context.Background(), bson.M{
-		"participents": bson.A{
-			bson.M{
-				"_id": userid,
-			},
-			bson.M{
-				"_id": poartnerid,
-			},
-		},
-	}).DecodeBytes()
+	filter := bson.M{
+		"participents._id": userid,
+	}
+
+	pipeline := bson.A{
+		bson.M{"$match": filter},
+	}
+
+	_, err = ConversationCollection.FindOne(context.Background(), pipeline).DecodeBytes()
 	if err == nil {
 		c.JSON(400, gin.H{"message": "Conversation already exists"})
 		return
@@ -114,10 +113,6 @@ func GetContacts(c *gin.Context) {
 	// Create the $or operator
 	filter := bson.M{
 		"participents._id": userid,
-		// "$or": bson.A{
-		// 	bson.M{"partner_id": userid},
-		// 	bson.M{"user_id": userid},
-		// },
 	}
 
 	//pipeline
