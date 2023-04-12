@@ -16,6 +16,12 @@ func main() {
 	//Create gin engine and routes
 	r := gin.Default()
 
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Welcome to PinupChat",
+		})
+	})
+
 	//Group routes
 	autha := r.Group("/auth")
 	{
